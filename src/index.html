@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="/styles.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+    <script src="/main.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TLS verifier</title>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-6">
+        <div class="container">
+          <div class="row">
+            <div class="col-10">
+              <h6>TLS test application</h6>
+              <hr />
+              <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                <button id="button" type="button" class="btn btn-primary" onclick="do_request()">Start</button>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <label for="idUrl" class="form-label">Url</label>
+            </div>
+            <div class="col-8">
+              <input type="text" class="form-control" id="idUrl" placeholder="Url" value="https://localhost:9443">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <label for="idProxy" class="form-label">Proxy url</label>
+            </div>
+            <div class="col-8">
+              <input type="text" class="form-control" id="idProxy" placeholder="Proxy url">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <label for="idPrivateKeystorePath" class="form-label">Keystore path</label>
+            </div>
+            <div class="col-8">
+              <input type="text" class="form-control" id="idPrivateKeystorePath" placeholder="Keystore file" value="/home/kjetil/Code/tauri-app/src-tauri/client.p12">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <label for="idPrivateKeystorePassword" class="form-label">Keystore password</label>
+            </div>
+            <div class="col-8">
+              <input type="text" class="form-control" id="idPrivateKeystorePassword" placeholder="Keystore password" value="password">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <label for="idPPublicCertificatePath" class="form-label">Public certificate path</label>
+            </div>
+            <div class="col-8">
+              <input type="text" class="form-control" id="idPPublicCertificatePath" placeholder="Public certificate file" value="/home/kjetil/Code/tauri-app/src-tauri/server.cer">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <label for="idCheckHostname" class="form-check-label">Check hostname</label>
+            </div>
+            <div class="col-8">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" class="form-control" id="idCheckHostname" value="true" checked>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <label for="idUseInbuildRootCerts" class="form-check-label">Use inbuilt root certs</label>
+            </div>
+            <div class="col-8">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" class="form-control" id="idUseInbuildRootCerts" value="true">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <label for="idHttpsOnly" class="form-check-label">Https only</label>
+            </div>
+            <div class="col-8">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" class="form-control" id="idHttpsOnly" value="true" checked>
+              </div>
+            </div>
+          </div>          
+          <div class="row">
+            <div class="col-4">
+              <label for="idUseTlsSni" class="form-check-label">Tls sni</label>
+            </div>
+            <div class="col-8">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" class="form-control" id="idUseTlsSni" value="true" checked>
+              </div>
+            </div>
+          </div>          
+        </div>
+      </div>
+      <div class="col-6">
+        <div id="logdata">
+        
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
