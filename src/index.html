@@ -50,7 +50,7 @@
             </div>
             <div class="col-8">
               <input type="text" class="form-control" id="idPrivateKeystorePath" placeholder="Keystore file"
-                value="/home/kjetil/Code/tauri-app/src-tauri/client.p12">
+                value="/home/kjetil/Code/rust_tls_verifier/src-tauri/test/resources/client.p12">
             </div>
           </div>
           <div class="row">
@@ -68,7 +68,7 @@
             </div>
             <div class="col-8">
               <input type="text" class="form-control" id="idPPublicCertificatePath"
-                placeholder="Public certificate file" value="/home/kjetil/Code/tauri-app/src-tauri/server.cer">
+                placeholder="Public certificate file" value="/home/kjetil/Code/rust_tls_verifier/src-tauri/test/resources/server.cer">
             </div>
           </div>
           <div class="row">
@@ -118,8 +118,18 @@
         </div>
       </div>
       <div class="col-6">
-        <div id="logdata">
+        <div class="row">
+          <span id="status" class="badge bg-secondary">No request</span>
+        </div>
+        <div class="row">
+          <div id="error">
 
+          </div>
+        </div>
+        <div class="row">
+          <div id="logdata">
+
+          </div>
         </div>
       </div>
     </div>

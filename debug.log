@@ -1,0 +1,34 @@
+[2m2023-09-15T14:53:08.682960Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m (ThreadId(19)) start runtime::block_on    
+[2m2023-09-15T14:53:08.682982Z[0m [35mTRACE[0m [2mreqwest::blocking::wait[0m[2m:[0m (ThreadId(1)) park without timeout    
+[2m2023-09-15T14:53:08.710596Z[0m [35mTRACE[0m [2mreqwest::blocking::wait[0m[2m:[0m wait at most 30s    
+[2m2023-09-15T14:53:08.710648Z[0m [35mTRACE[0m [2mreqwest::blocking::wait[0m[2m:[0m (ThreadId(1)) park timeout 29.999995661s    
+[2m2023-09-15T14:53:08.711005Z[0m [35mTRACE[0m [2mhyper::client::pool[0m[2m:[0m checkout waiting for idle connection: ("https", localhost:9443)
+[2m2023-09-15T14:53:08.711097Z[0m [34mDEBUG[0m [2mreqwest::connect[0m[2m:[0m starting new connection: https://localhost:9443/    
+[2m2023-09-15T14:53:08.711141Z[0m [35mTRACE[0m [2mhyper::client::connect::http[0m[2m:[0m Http::connect; scheme=Some("https"), host=Some("localhost"), port=Some(Port(9443))
+[2m2023-09-15T14:53:08.711607Z[0m [34mDEBUG[0m [2mhyper::client::connect::dns[0m[2m:[0m resolving host="localhost"
+[2m2023-09-15T14:53:08.711863Z[0m [34mDEBUG[0m [2mhyper::client::connect::http[0m[2m:[0m connecting to 127.0.0.1:9443
+[2m2023-09-15T14:53:08.712050Z[0m [34mDEBUG[0m [2mhyper::client::connect::http[0m[2m:[0m connected to 127.0.0.1:9443
+[2m2023-09-15T14:53:08.716149Z[0m [35mTRACE[0m [2mhyper::client::pool[0m[2m:[0m checkout dropped for ("https", localhost:9443)
+[2m2023-09-15T14:53:08.716354Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m closing runtime thread (ThreadId(19))    
+[2m2023-09-15T14:53:08.716398Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m signaled close for runtime thread (ThreadId(19))    
+[2m2023-09-15T14:53:08.716477Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m (ThreadId(19)) Receiver is shutdown    
+[2m2023-09-15T14:53:08.716566Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m (ThreadId(19)) end runtime::block_on    
+[2m2023-09-15T14:53:08.716928Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m (ThreadId(19)) finished    
+[2m2023-09-15T14:53:08.717202Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m closed runtime thread (ThreadId(19))    
+[2m2023-09-15T14:54:05.880607Z[0m [35mTRACE[0m [2mreqwest::blocking::wait[0m[2m:[0m (ThreadId(1)) park without timeout    
+[2m2023-09-15T14:54:05.880608Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m (ThreadId(21)) start runtime::block_on    
+[2m2023-09-15T14:54:05.907171Z[0m [35mTRACE[0m [2mreqwest::blocking::wait[0m[2m:[0m wait at most 30s    
+[2m2023-09-15T14:54:05.907210Z[0m [35mTRACE[0m [2mreqwest::blocking::wait[0m[2m:[0m (ThreadId(1)) park timeout 29.999996456s    
+[2m2023-09-15T14:54:05.907486Z[0m [35mTRACE[0m [2mhyper::client::pool[0m[2m:[0m checkout waiting for idle connection: ("https", localhost:9443)
+[2m2023-09-15T14:54:05.907578Z[0m [34mDEBUG[0m [2mreqwest::connect[0m[2m:[0m starting new connection: https://localhost:9443/    
+[2m2023-09-15T14:54:05.907619Z[0m [35mTRACE[0m [2mhyper::client::connect::http[0m[2m:[0m Http::connect; scheme=Some("https"), host=Some("localhost"), port=Some(Port(9443))
+[2m2023-09-15T14:54:05.907969Z[0m [34mDEBUG[0m [2mhyper::client::connect::dns[0m[2m:[0m resolving host="localhost"
+[2m2023-09-15T14:54:05.908121Z[0m [34mDEBUG[0m [2mhyper::client::connect::http[0m[2m:[0m connecting to 127.0.0.1:9443
+[2m2023-09-15T14:54:05.908319Z[0m [34mDEBUG[0m [2mhyper::client::connect::http[0m[2m:[0m connected to 127.0.0.1:9443
+[2m2023-09-15T14:54:05.912035Z[0m [35mTRACE[0m [2mhyper::client::pool[0m[2m:[0m checkout dropped for ("https", localhost:9443)
+[2m2023-09-15T14:54:05.912275Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m closing runtime thread (ThreadId(21))    
+[2m2023-09-15T14:54:05.912314Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m signaled close for runtime thread (ThreadId(21))    
+[2m2023-09-15T14:54:05.912413Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m (ThreadId(21)) Receiver is shutdown    
+[2m2023-09-15T14:54:05.912510Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m (ThreadId(21)) end runtime::block_on    
+[2m2023-09-15T14:54:05.912814Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m (ThreadId(21)) finished    
+[2m2023-09-15T14:54:05.913082Z[0m [35mTRACE[0m [2mreqwest::blocking::client[0m[2m:[0m closed runtime thread (ThreadId(21))    

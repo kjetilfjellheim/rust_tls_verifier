@@ -12,15 +12,27 @@ async function do_request() {
   input.public_certificate_path = document.querySelector("#idPPublicCertificatePath").value;
   input.check_hostname = document.querySelector("#idCheckHostname").checked;
   input.use_inbuilt_root_certs = document.querySelector("#idUseInbuildRootCerts").checked;
-  input.https_only = document.querySelector("#idHttpsOnly").checked;
+  input.use_https_only = document.querySelector("#idHttpsOnly").checked;
   input.use_tls_sni = document.querySelector("#idUseTlsSni").checked;
 
   await invoke("do_request", { "input": input })
     .then((response) => {
-      const val = response instanceof ArrayBuffer ? new TextDecoder().decode(response) : response
-      document.querySelector("#logdata").innerText = response.logdata;
+      if (response.success) {
+        document.querySelector("#status").classList ="badge bg-success";
+        document.querySelector("#status").innerText = "Success";
+        document.querySelector("#error").innerText = "";
+        document.querySelector("#logdata").innerText = "";
+      } else {
+        document.querySelector("#status").classList ="badge bg-danger";
+        document.querySelector("#status").innerText = "Failed";
+        document.querySelector("#error").innerText = response.error;
+        document.querySelector("#logdata").innerText = response.logdata;
+      }
     })
     .catch((error) => {
-      document.querySelector("#logdata").innerText = error.message;
+      document.querySelector("#status").classList ="badge bg-danger";
+      document.querySelector("#status").innerText = "Failed";
+      document.querySelector("#error").innerText = error.error;
+      document.querySelector("#logdata").innerText = error.logdata;
     });
 }
