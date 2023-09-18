@@ -1,3 +1,9 @@
+//! Simple application backend using tauri used for checking TLS
+//! connections.
+//!
+//! Currently only openssl is used through the native tls layer.
+//! Rustls will be added latter.
+//!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "linux")]
 
 use reqwest::blocking::Client;
@@ -11,10 +17,27 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use tauri::State;
 
+///
+/// Application state. Will eventually be used to store logs so that they are
+/// available to the frontend.
+///   
 struct ApplicationState {
     logdata: Mutex<String>,
 }
 
+///
+/// Input from the frontend.
+///
+/// url: The url to connect to.
+/// proxy_url: The proxy to use. If None then no proxy is used.
+/// keystore_path: The path to the keystore containing the client certificate.
+/// keystore_password: The password for the keystore.
+/// public_certificate_path: The path to the public certificate of the server.
+/// check_hostname: If true then the hostname of the server is checked against the certificate.
+/// use_inbuilt_root_certs: If true then the inbuilt root certificates are used.
+/// use_https_only: If true then only https is used.
+/// use_tls_sni: If true then tls sni is used.
+///  
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all(deserialize = "snake_case", serialize = "camelCase"))]
 struct Input<'a> {
@@ -29,6 +52,12 @@ struct Input<'a> {
     use_tls_sni: bool,
 }
 
+///
+/// Output to the frontend.
+///
+/// success: If true then the request was successful.
+/// logdata: The logdata from the request.
+///
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all(deserialize = "snake_case", serialize = "camelCase"))]
 struct Output {
@@ -36,6 +65,12 @@ struct Output {
     logdata: String,
 }
 
+///
+/// Application error.
+///
+/// error: The error message.
+/// logdata: The logdata from the request.
+///
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct ApplicationError {
@@ -43,14 +78,27 @@ struct ApplicationError {
     logdata: Option<String>,
 }
 
+///
+/// Implementation of the application error.
+///
+/// error: The error message.
+/// logdata: The logdata from the request.
+///
+/// This is used to return errors to the frontend.
+///
 impl ApplicationError {
     pub fn new(error: String, logdata: Option<String>) -> ApplicationError {
-        ApplicationError {
-            error,
-            logdata,
-        }
+        ApplicationError { error, logdata }
     }
 }
+
+///
+/// Read a file into a buffer.
+///
+/// filename: The name of the file to read.
+///
+/// Returns a buffer containing the contents of the file.
+///
 fn read_file<'a, 'b>(filename: &'a str) -> Result<Vec<u8>, ApplicationError> {
     let file = File::open(filename);
     let mut file: File = match file {
@@ -65,6 +113,13 @@ fn read_file<'a, 'b>(filename: &'a str) -> Result<Vec<u8>, ApplicationError> {
     }
 }
 
+///
+/// Get the certificate from the public certificate file.
+///
+/// certificate_path: The path to the public certificate file.
+///
+/// Returns the certificate.
+///
 fn get_certificate<'a, 'b>(certificate_path: &'a str) -> Result<Certificate, ApplicationError> {
     let buffer = read_file(certificate_path)?;
     let certificate = reqwest::Certificate::from_pem(&buffer);
@@ -74,10 +129,44 @@ fn get_certificate<'a, 'b>(certificate_path: &'a str) -> Result<Certificate, App
     }
 }
 
+///
+/// Get the client builder.
+///
+/// Returns the client builder.
+///
 fn get_clientbuilder() -> ClientBuilder {
     reqwest::blocking::Client::builder().use_native_tls()
 }
 
+///
+/// Get the proxy.
+///
+/// proxy_url: The proxy to use.
+///
+/// Returns the proxy.
+///
+fn get_proxy(proxy_url: &str) -> Result<Proxy, ApplicationError> {
+    let proxy = Proxy::all(proxy_url);
+    match proxy {
+        Ok(proxy) => Ok(proxy),
+        Err(error) => Err(ApplicationError::new(String::from(error.to_string()), None)),
+    }
+}
+
+///
+/// Get the client.
+///
+/// public_certificate_path: The path to the public certificate file.
+/// keystore_path: The path to the keystore containing the client certificate.
+/// keystore_password: The password for the keystore.
+/// proxy_url: The proxy to use. If None then no proxy is used.
+/// check_hostname: If true then the hostname of the server is checked against the certificate.
+/// use_inbuilt_root_certs: If true then the inbuilt root certificates are used.
+/// use_https_only: If true then only https is used.
+/// use_tls_sni: If true then tls sni is used.
+///
+/// Returns the client.
+///
 fn get_client<'a>(
     public_certificate_path: &str,
     keystore_path: &str,
@@ -103,7 +192,7 @@ fn get_client<'a>(
 
     let clientbuilder: ClientBuilder = match proxy_url {
         Some(proxy_url) => {
-            let proxy = Proxy::all(proxy_url).expect("Failure setting proxy url");
+            let proxy = get_proxy(proxy_url)?;
             clientbuilder.proxy(proxy)
         }
         None => clientbuilder,
@@ -116,6 +205,14 @@ fn get_client<'a>(
     }
 }
 
+///
+/// Get the identity from the keystore.
+///
+/// keystore_path: The path to the keystore containing the client certificate.
+/// keystore_password: The password for the keystore.
+///
+/// Returns the identity.
+///
 fn get_identity<'a, 'b>(
     keystore_path: &'a str,
     keystore_password: &'a str,
@@ -128,6 +225,29 @@ fn get_identity<'a, 'b>(
     }
 }
 
+///
+/// Get the logdata.
+///
+/// logdata: The logdata.
+///
+/// Returns the logdata.
+///
+fn get_logdata(logdata: &Mutex<String>) -> Result<String, ApplicationError> {
+    let logdata = logdata.lock();
+    match logdata {
+        Ok(logdata) => Ok(logdata.clone()),
+        Err(error) => Err(ApplicationError::new(String::from(error.to_string()), None)),
+    }
+}
+
+///
+/// Frontend request handler.
+///
+/// input: The input from the frontend.
+/// application_state: The application state.
+///
+/// Returns the output to the frontend.
+///
 #[tauri::command]
 fn do_request(
     input: Input,
@@ -148,18 +268,23 @@ fn do_request(
     match response {
         Ok(_) => Ok(Output {
             success: true,
-            logdata: application_state.logdata.lock().unwrap().clone(),
+            logdata: get_logdata(&application_state.logdata)?,
         }),
         Err(error) => {
             let error = String::from(error.to_string());
             Err(ApplicationError::new(
                 error,
-                Some(application_state.logdata.lock().unwrap().clone()),
+                Some(get_logdata(&application_state.logdata)?),
             ))
         }
     }
 }
 
+///
+/// Main function.
+///
+/// Starts the application.
+///
 fn main() {
     let application_state = Arc::new(ApplicationState {
         logdata: Mutex::new(String::from("")),
@@ -169,7 +294,7 @@ fn main() {
         .manage(application_state)
         .invoke_handler(tauri::generate_handler![do_request])
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("Error running application");
 }
 
 #[cfg(test)]
@@ -178,9 +303,6 @@ mod tests {
 
     #[test]
     fn get_client_success_noproxy() {
-        let path = env::current_dir().unwrap();
-        println!("The current directory is {}", path.display());
-
         let input = Input {
             url: "https://www.google.com",
             proxy_url: None,
@@ -207,9 +329,6 @@ mod tests {
 
     #[test]
     fn get_client_success_proxy() {
-        let path = env::current_dir().unwrap();
-        println!("The current directory is {}", path.display());
-
         let input = Input {
             url: "https://www.google.com",
             proxy_url: Some("localhost:8080"),
