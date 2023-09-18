@@ -167,8 +167,6 @@ fn get_proxy(proxy_url: &str) -> Result<Proxy, ApplicationError> {
 /// use_https_only: If true then only https is used.
 /// use_tls_sni: If true then tls sni is used.
 ///
-/// TODO: Fix too many arguments.
-///
 /// Returns the client.
 ///
 fn get_client(
