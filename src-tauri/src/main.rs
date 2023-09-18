@@ -17,6 +17,8 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use tauri::State;
 
+const APLICATION_STARTUP_ERROR: &str = "Error running application";
+
 ///
 /// Application state. Will eventually be used to store logs so that they are
 /// available to the frontend.
@@ -99,17 +101,17 @@ impl ApplicationError {
 ///
 /// Returns a buffer containing the contents of the file.
 ///
-fn read_file<'a, 'b>(filename: &'a str) -> Result<Vec<u8>, ApplicationError> {
+fn read_file(filename: &str) -> Result<Vec<u8>, ApplicationError> {
     let file = File::open(filename);
     let mut file: File = match file {
         Ok(file) => file,
-        Err(error) => return Err(ApplicationError::new(String::from(error.to_string()), None)),
+        Err(error) => return Err(ApplicationError::new(error.to_string(), None)),
     };
     let mut buf = Vec::new();
     let read = file.read_to_end(&mut buf);
     match read {
         Ok(_size) => Ok(buf),
-        Err(error) => Err(ApplicationError::new(String::from(error.to_string()), None)),
+        Err(error) => Err(ApplicationError::new(error.to_string(), None)),
     }
 }
 
@@ -120,12 +122,12 @@ fn read_file<'a, 'b>(filename: &'a str) -> Result<Vec<u8>, ApplicationError> {
 ///
 /// Returns the certificate.
 ///
-fn get_certificate<'a, 'b>(certificate_path: &'a str) -> Result<Certificate, ApplicationError> {
+fn get_certificate(certificate_path: &str) -> Result<Certificate, ApplicationError> {
     let buffer = read_file(certificate_path)?;
     let certificate = reqwest::Certificate::from_pem(&buffer);
     match certificate {
-        Ok(certificate) => return Ok(certificate),
-        Err(error) => Err(ApplicationError::new(String::from(error.to_string()), None)),
+        Ok(certificate) => Ok(certificate),
+        Err(error) => Err(ApplicationError::new(error.to_string(), None)),
     }
 }
 
@@ -149,7 +151,7 @@ fn get_proxy(proxy_url: &str) -> Result<Proxy, ApplicationError> {
     let proxy = Proxy::all(proxy_url);
     match proxy {
         Ok(proxy) => Ok(proxy),
-        Err(error) => Err(ApplicationError::new(String::from(error.to_string()), None)),
+        Err(error) => Err(ApplicationError::new(error.to_string(), None)),
     }
 }
 
@@ -167,7 +169,7 @@ fn get_proxy(proxy_url: &str) -> Result<Proxy, ApplicationError> {
 ///
 /// Returns the client.
 ///
-fn get_client<'a>(
+fn get_client(
     public_certificate_path: &str,
     keystore_path: &str,
     keystore_password: &str,
@@ -201,7 +203,7 @@ fn get_client<'a>(
     let client = clientbuilder.build();
     match client {
         Ok(client) => Ok(client),
-        Err(error) => Err(ApplicationError::new(String::from(error.to_string()), None)),
+        Err(error) => Err(ApplicationError::new(error.to_string(), None)),
     }
 }
 
@@ -213,15 +215,15 @@ fn get_client<'a>(
 ///
 /// Returns the identity.
 ///
-fn get_identity<'a, 'b>(
+fn get_identity<'a>(
     keystore_path: &'a str,
     keystore_password: &'a str,
 ) -> Result<Identity, ApplicationError> {
     let buffer = read_file(keystore_path)?;
     let identity = reqwest::Identity::from_pkcs12_der(&buffer, keystore_password);
     match identity {
-        Ok(identity) => return Ok(identity),
-        Err(error) => Err(ApplicationError::new(String::from(error.to_string()), None)),
+        Ok(identity) => Ok(identity),
+        Err(error) => Err(ApplicationError::new(error.to_string(), None)),
     }
 }
 
@@ -236,7 +238,7 @@ fn get_logdata(logdata: &Mutex<String>) -> Result<String, ApplicationError> {
     let logdata = logdata.lock();
     match logdata {
         Ok(logdata) => Ok(logdata.clone()),
-        Err(error) => Err(ApplicationError::new(String::from(error.to_string()), None)),
+        Err(error) => Err(ApplicationError::new(error.to_string(), None)),
     }
 }
 
@@ -271,7 +273,7 @@ fn do_request(
             logdata: get_logdata(&application_state.logdata)?,
         }),
         Err(error) => {
-            let error = String::from(error.to_string());
+            let error = error.to_string();
             Err(ApplicationError::new(
                 error,
                 Some(get_logdata(&application_state.logdata)?),
@@ -290,11 +292,12 @@ fn main() {
         logdata: Mutex::new(String::from("")),
     });
 
+
     tauri::Builder::default()
         .manage(application_state)
         .invoke_handler(tauri::generate_handler![do_request])
         .run(tauri::generate_context!())
-        .expect("Error running application");
+        .expect(APLICATION_STARTUP_ERROR);
 }
 
 #[cfg(test)]
