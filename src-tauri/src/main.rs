@@ -73,7 +73,7 @@ struct Output {
 /// error: The error message.
 /// logdata: The logdata from the request.
 ///
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct ApplicationError {
     error: String,
@@ -159,8 +159,7 @@ fn get_proxy(proxy_url: &str) -> Result<Proxy, ApplicationError> {
 /// Get the client.
 ///
 /// public_certificate_path: The path to the public certificate file.
-/// keystore_path: The path to the keystore containing the client certificate.
-/// keystore_password: The password for the keystore.
+/// identity: Client identity..
 /// proxy_url: The proxy to use. If None then no proxy is used.
 /// check_hostname: If true then the hostname of the server is checked against the certificate.
 /// use_inbuilt_root_certs: If true then the inbuilt root certificates are used.
@@ -171,8 +170,7 @@ fn get_proxy(proxy_url: &str) -> Result<Proxy, ApplicationError> {
 ///
 fn get_client(
     public_certificate_path: &str,
-    keystore_path: &str,
-    keystore_password: &str,
+    identity: Identity,
     proxy_url: Option<&str>,
     check_hostname: bool,
     use_inbuilt_root_certs: bool,
@@ -180,8 +178,6 @@ fn get_client(
     use_tls_sni: bool,
 ) -> Result<Client, ApplicationError> {
     let certificate = get_certificate(public_certificate_path)?;
-
-    let identity = get_identity(keystore_path, keystore_password)?;
 
     let clientbuilder: ClientBuilder = get_clientbuilder()
         .tls_built_in_root_certs(use_inbuilt_root_certs)
@@ -255,10 +251,11 @@ fn do_request(
     input: Input,
     application_state: State<Arc<ApplicationState>>,
 ) -> Result<Output, ApplicationError> {
+    let identity = get_identity(input.keystore_path, input.keystore_password)?;
+
     let client = get_client(
         input.public_certificate_path,
-        input.keystore_path,
-        input.keystore_password,
+        identity,
         input.proxy_url,
         input.check_hostname,
         input.use_inbuilt_root_certs,
@@ -316,10 +313,12 @@ mod tests {
             use_https_only: true,
             use_tls_sni: true,
         };
+
+        let identity = get_identity(input.keystore_path, input.keystore_password);
+
         let client = get_client(
             input.public_certificate_path,
-            input.keystore_path,
-            input.keystore_password,
+            identity.unwrap(),
             input.proxy_url,
             input.check_hostname,
             input.use_inbuilt_root_certs,
@@ -342,10 +341,12 @@ mod tests {
             use_https_only: true,
             use_tls_sni: true,
         };
+
+        let identity = get_identity(input.keystore_path, input.keystore_password);
+
         let client = get_client(
             input.public_certificate_path,
-            input.keystore_path,
-            input.keystore_password,
+            identity.unwrap(),
             input.proxy_url,
             input.check_hostname,
             input.use_inbuilt_root_certs,
